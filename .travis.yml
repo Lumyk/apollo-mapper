@@ -1,3 +1,5 @@
 language: objective-c
 osx_image: xcode9
 script: swift test
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -t 5ba346fd-60e2-4650-86d5-0c22f6340b03
