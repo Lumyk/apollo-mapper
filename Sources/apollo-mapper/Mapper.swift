@@ -73,9 +73,8 @@ internal extension Mapper {
         } else if keys.count > 1, let array = object as? [Any?] {
             let tail = keys.dropFirst()
             return try valueFor(tail, array: array)
-        } else {
-            return object
         }
+        return object
     }
     
     class func valueFor(_ keys: ArraySlice<String>, array: [Any?]) throws -> Any? {
@@ -91,9 +90,8 @@ internal extension Mapper {
         } else if  keys.count > 1, let dict = object as? [String: Any?] {
             let tail = keys.dropFirst()
             return try valueFor(tail, dictionary: dict)
-        } else {
-            return object
         }
+        return object
     }
 }
 
@@ -123,9 +121,8 @@ public extension Mapper {
                 }
                 return try transformType(value)
             })
-        } else {
-            return try self.value(key: key, transformOptionalType: nil)
         }
+        return try self.value(key: key, transformOptionalType: nil)
     }
     
     func value<T>(key: String, transformOptionalType: ((_ value: Any?) throws -> T)? = nil) throws -> T {
@@ -142,9 +139,8 @@ public extension Mapper {
                 return value_
             } else if let transformType = transformOptionalType  {
                 return try transformType(nil)
-            } else {
-                throw MappingError.optional
             }
+            throw MappingError.optional
         } catch let error as MappingError {
             throw error
         }
@@ -158,8 +154,7 @@ public extension Mapper {
                 }
                 return try transformType(value)
             })
-        } else {
-            return try self.value(key: key, transformOptionalType: nil)
         }
+        return try self.value(key: key, transformOptionalType: nil)
     }
 }
