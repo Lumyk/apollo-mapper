@@ -292,6 +292,7 @@
 					"$(inherited)",
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 				);
+				GCC_GENERATE_TEST_COVERAGE_FILES = NO;
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "apollo-mapper.xcodeproj/apollo_mapperTests_Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
@@ -311,6 +312,7 @@
 					"$(inherited)",
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 				);
+				GCC_GENERATE_TEST_COVERAGE_FILES = NO;
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "apollo-mapper.xcodeproj/apollo_mapperTests_Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
