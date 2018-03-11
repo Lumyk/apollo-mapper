@@ -37,3 +37,9 @@ class Car: Mappable {
         })
     }
 }
+
+class BrokenCar: Mappable {
+    required init(mapper: Mapper) throws {
+        throw URLError(.cancelled) // test on different errors
+    }
+}

@@ -182,6 +182,20 @@ class apollo_mapperTests: XCTestCase {
         } catch {
             XCTAssert(true)
         }
+        
+        do {
+            _ = try Mapper.valueFor(ArraySlice([]), array: [])
+            XCTFail("testMapperValue 18 error")
+        } catch {
+            XCTAssert(true)
+        }
+        
+        do {
+            _ = try Mapper.valueFor(ArraySlice([]), dictionary: [:])
+            XCTFail("testMapperValue 19 error")
+        } catch {
+            XCTAssert(true)
+        }
     }
     
     func testCarsMapping() {
@@ -216,8 +230,18 @@ class apollo_mapperTests: XCTestCase {
         }
         
         XCTAssert(errorCount == 3, "testCarsMapping 4 error")
+        
+        let count1 = BrokenCar.map([self.jsonData[0]], store: MyStorage(), exeption: { (_, _) in }) { (_) in }.count
+        XCTAssert(count1 == 0, "testCarsMapping 5 error")
+        
+        var errorCount2 = 0
+        Mapper.mapToStorage(BrokenCar.self, snapshots: self.jsonData, store: MyStorage()) { (_, _) in
+            errorCount2 += 1
+        }
+        
+        XCTAssert(errorCount2 == 4, "testCarsMapping 6 error")
     }
-
+    
     static var allTests = [
         ("testTransformTypes", testTransformTypes),
         ("testMapperValue", testMapperValue),

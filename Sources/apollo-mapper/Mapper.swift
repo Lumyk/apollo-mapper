@@ -15,7 +15,7 @@ public class Mapper {
     }
     
     @discardableResult
-    class func map<T: Mappable>(_ type: T.Type, snapshots: [[String : Any?]], store: MapperStorage? = nil, exeption: ((_ error: MappingError, _ object: [String : Any?]) -> Void)? = nil, element: ((_ object: T) -> Void)? = nil) -> [T] {
+    public class func map<T: Mappable>(_ type: T.Type, snapshots: [[String : Any?]], store: MapperStorage? = nil, exeption: ((_ error: MappingError, _ object: [String : Any?]) -> Void)? = nil, element: ((_ object: T) -> Void)? = nil) -> [T] {
         var objects = [T]()
         for snapshot in snapshots {
             do {
@@ -37,7 +37,7 @@ public class Mapper {
         return objects
     }
     
-    class func mapToStorage<T: Mappable>(_ type: T.Type, snapshots: [[String : Any?]], store: MapperStorage, exeption: ((_ error: MappingError, _ object: [String : Any?]) -> Void)? = nil) {
+    public class func mapToStorage<T: Mappable>(_ type: T.Type, snapshots: [[String : Any?]], store: MapperStorage, exeption: ((_ error: MappingError, _ object: [String : Any?]) -> Void)? = nil) {
         for snapshot in snapshots {
             do {
                 let object = try T(snapshot: snapshot)
@@ -56,8 +56,8 @@ public class Mapper {
     }
 }
 
-private extension Mapper {
-    private class func valueFor(_ keys: ArraySlice<String>, dictionary: [String : Any?]) throws -> Any? {
+internal extension Mapper {
+    class func valueFor(_ keys: ArraySlice<String>, dictionary: [String : Any?]) throws -> Any? {
         
         guard let keyPath = keys.first else {
             throw MappingError.noKey
@@ -78,7 +78,7 @@ private extension Mapper {
         }
     }
     
-    private class func valueFor(_ keys: ArraySlice<String>, array: [Any?]) throws -> Any? {
+    class func valueFor(_ keys: ArraySlice<String>, array: [Any?]) throws -> Any? {
         
         guard let keyPath = keys.first, let index = Int(keyPath), index >= 0 && index < array.count else {
             throw MappingError.noKey
@@ -131,16 +131,20 @@ public extension Mapper {
     func value<T>(key: String, transformOptionalType: ((_ value: Any?) throws -> T)? = nil) throws -> T {
         let keys = key.components(separatedBy: ".")
         do {
-            guard let value = try Mapper.valueFor(ArraySlice(keys), dictionary: self.snapshot) else {
+            if let value = try Mapper.valueFor(ArraySlice(keys), dictionary: self.snapshot) {
+                if let transformType = transformOptionalType {
+                    return try transformType(value)
+                }
+                
+                guard let value_ = value as? T else {
+                    throw MappingError.differentTypes
+                }
+                return value_
+            } else if let transformType = transformOptionalType  {
+                return try transformType(nil)
+            } else {
                 throw MappingError.optional
             }
-            if let transformType = transformOptionalType {
-                return try transformType(value)
-            }
-            guard let value_ = value as? T else {
-                throw MappingError.differentTypes
-            }
-            return value_
         } catch let error as MappingError {
             throw error
         }
