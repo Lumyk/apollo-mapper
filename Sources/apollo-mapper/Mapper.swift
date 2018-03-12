@@ -137,7 +137,7 @@ public extension Mapper {
                     throw MappingError.differentTypes
                 }
                 return value_
-            } else if let transformType = transformOptionalType  {
+            } else if let transformType = transformOptionalType {
                 return try transformType(nil)
             }
             throw MappingError.optional
