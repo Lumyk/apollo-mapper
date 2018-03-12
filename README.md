@@ -82,8 +82,6 @@ pod 'apollo-mapper', :git => 'https://github.com/lumyk/apollo-mapper.git'
 
 ### Swift Package Manager
 
-Once you have your Swift package set up, adding apollo-mapper as a dependency is as easy as adding it to the `dependencies` value of your `Package.swift`.
-
 #### Swift 3
 
 ```swift
