@@ -110,7 +110,7 @@ public extension Mapper {
             return value_
         } catch let error as MappingError {
             throw error
-        }
+        } /* codecov skip */
     }
     
     func value<T>(key: String, transformType: ((_ value: Any) throws -> T?)? = nil) throws -> T? {
@@ -143,7 +143,7 @@ public extension Mapper {
             throw MappingError.optional
         } catch let error as MappingError {
             throw error
-        }
+        } /* codecov skip */
     }
     
     func value<T>(key: String, transformType: ((_ value: Any) throws -> T)? = nil) throws -> T {
