@@ -45,6 +45,38 @@ class apollo_mapperTests: XCTestCase {
         ]
     ]
     
+    func testUseExemple()  {
+        let data : [String : Any?] = [
+            "id": "1",
+            "car_name": "Car 1",
+            "number": "FG356",
+            "model": ["name": "M3"],
+            "users": [["name": "John"]],
+            "last_use": "10-10-2017"
+        ]
+        let car = try! Car(snapshot: data)
+        print(car.id, car.name, car.number, car.model, car.user, car.lastUse)
+        // 1 Optional("Car 1") Optional("FG356") M3 Optional("John") Optional(2017-10-09 21:00:00 +0000)
+        
+        do {
+            let data = jsonData[0]
+            let car = try Car(snapshot: data)
+            let result = car.id == 1 && car.name == "Car 1" && car.number == "FG356" && car.model == "M3" && car.user == "John" && car.lastUse != nil
+            XCTAssert(result, "testUseExemple mapping error")
+        } catch let error {
+            XCTFail("testUseExemple mapping error - \(error)")
+        }
+        
+        do {
+            let data = jsonData[1]
+            let car = try Car(snapshot: data)
+            let result = car.id == 2 && car.name == "Car 2" && car.number == "FF335" && car.model == "M5" && car.user == nil && car.lastUse == nil
+            XCTAssert(result, "testUseExemple mapping error")
+        } catch let error {
+            XCTFail("testUseExemple mapping error - \(error)")
+        }
+    }
+    
     func testTransformTypes() {
         XCTAssert(try! TransformTypes.stringToInt("10") == 10, "TransformTypes 1 error")
         do {
@@ -245,6 +277,7 @@ class apollo_mapperTests: XCTestCase {
     static var allTests = [
         ("testTransformTypes", testTransformTypes),
         ("testMapperValue", testMapperValue),
-        ("testCarsMapping", testCarsMapping)
+        ("testCarsMapping", testCarsMapping),
+        ("testUseExemple", testUseExemple)
     ]
 }
