@@ -14,5 +14,6 @@ public enum MappingError: Error {
     case noKey
     case customTransformationError
     case mappingError
+    case notRegistered
     case another(error: Error)
 }

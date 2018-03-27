@@ -6,5 +6,6 @@
 //
 
 public protocol MapperStorage {
-    func save(object: Mappable) throws
+    func save<T: Mappable>(object: Mapper, objectType: T.Type) throws
+    func save<T: Mappable>(object: T) throws
 }

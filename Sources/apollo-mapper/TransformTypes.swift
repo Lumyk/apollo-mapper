@@ -8,7 +8,21 @@
 import Foundation
 
 public class TransformTypes {
+    
     public class func stringToInt(_ value: Any) throws -> Int {
+        guard let value = value as? String else {
+            throw MappingError.customTransformationError
+        }
+        guard let intValue = Int(value) else {
+            throw MappingError.customTransformationError
+        }
+        return intValue
+    }
+    
+    public class func stringToInt(_ value: Any?) throws -> Int? {
+        if value == nil {
+            return nil
+        }
         guard let value = value as? String else {
             throw MappingError.customTransformationError
         }

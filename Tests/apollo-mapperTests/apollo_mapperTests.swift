@@ -3,7 +3,14 @@ import XCTest
 
 class MyStorage: MapperStorage {
     var count = 0
-    func save(object: Mappable) throws {
+    func save<T>(object: Mapper, objectType: T.Type) throws where T : Mappable {
+        if count != 0 {
+            throw MappingError.customTransformationError
+        }
+        count += 1
+    }
+    
+    func save<T>(object: T) throws where T : Mappable {
         if count != 0 {
             throw MappingError.customTransformationError
         }
@@ -91,6 +98,28 @@ class apollo_mapperTests: XCTestCase {
         } catch {
             XCTAssert(true)
         }
+        
+        
+        let optional10: String? = "10"
+        let result10: Int? = try! TransformTypes.stringToInt(optional10)
+        
+        XCTAssert(result10 == 10, "TransformTypes 4 error")
+        do {
+            let result: Int? = try TransformTypes.stringToInt(result10)
+            XCTFail("TransformTypes 5 error \(result)")
+        } catch {
+            XCTAssert(true)
+        }
+        do {
+            let optionalA: String? = "a"
+            let result: Int? = try TransformTypes.stringToInt(optionalA)
+            XCTFail("TransformTypes 6 error \(result)")
+        } catch {
+            XCTAssert(true)
+        }
+        
+        let result: Int? = try! TransformTypes.stringToInt(nil)
+        XCTAssert(result == nil, "TransformTypes 7 error")
     }
     
     func testMapperValue() {
@@ -248,7 +277,7 @@ class apollo_mapperTests: XCTestCase {
         
         XCTAssert(Car.map([self.jsonData[3]]).count == 0, "testCarsMapping 3 error")
         
-        let count = Car.map(self.jsonData, store: MyStorage(), exeption: { (_, _) in
+        let count = Car.map(self.jsonData, storage: MyStorage(), exeption: { (_, _) in
             
         }) { (_) in
             
@@ -257,21 +286,27 @@ class apollo_mapperTests: XCTestCase {
         XCTAssert(count == 1, "testCarsMapping 4 error")
         
         var errorCount = 0
-        Mapper.mapToStorage(Car.self, snapshots: self.jsonData, store: MyStorage()) { (_, _) in
+        Mapper.mapToStorage(Car.self, snapshots: self.jsonData, storage: MyStorage()) { (_, _) in
             errorCount += 1
         }
         
         XCTAssert(errorCount == 3, "testCarsMapping 4 error")
         
-        let count1 = BrokenCar.map([self.jsonData[0]], store: MyStorage(), exeption: { (_, _) in }) { (_) in }.count
+        let count1 = BrokenCar.map([self.jsonData[0]], storage: MyStorage(), exeption: { (_, _) in }) { (_) in }.count
         XCTAssert(count1 == 0, "testCarsMapping 5 error")
         
         var errorCount2 = 0
-        Mapper.mapToStorage(BrokenCar.self, snapshots: self.jsonData, store: MyStorage()) { (_, _) in
+        Mapper.mapToStorage(BrokenCar.self, snapshots: self.jsonData, storage: MyStorage()) { (_, _) in
             errorCount2 += 1
         }
         
         XCTAssert(errorCount2 == 4, "testCarsMapping 6 error")
+        
+        var errorCount3 = 0
+        Mapper.mapToStorageOnly(Car.self, snapshots: self.jsonData, storage: MyStorage()) { _, _ in
+            errorCount3 += 1
+        }
+        XCTAssert(errorCount == 3, "testCarsMapping 5 error")
     }
     
     static var allTests = [

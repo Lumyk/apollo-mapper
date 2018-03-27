@@ -23,8 +23,7 @@ public extension Mappable {
     }
     
     @discardableResult
-    static func map(_ snapshots: [[String : Any?]], store: MapperStorage? = nil, exeption: ((_ error: MappingError, _ object: [String : Any?]) -> Void)? = nil, element: ((_ object: Self) -> Void)? = nil) -> [Self] {
-        return Mapper.map(Self.self, snapshots: snapshots, store: store, exeption: exeption, element: element)
+    static func map(_ snapshots: [[String : Any?]], storage: MapperStorage? = nil, exeption: ((_ error: MappingError, _ object: [String : Any?]) -> Void)? = nil, element: ((_ object: Self) -> Void)? = nil) -> [Self] {
+        return Mapper.map(Self.self, snapshots: snapshots, storage: storage, exeption: exeption, element: element)
     }
-    
 }
