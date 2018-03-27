@@ -16,6 +16,6 @@ public enum MappingError: Error {
     case mappingError
     case notRegistered
     case another(error: Error)
-    case mapperError(error: Error, snapshot: [String : Any?])
-    case storageSaveError(error: Error, snapshot: [String : Any?])
+    case mapperError(error: Error, snapshot: [String : Any?]?)
+    case storageSaveError(error: Error, snapshot: [String : Any?]?)
 }

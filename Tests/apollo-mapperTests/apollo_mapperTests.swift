@@ -317,37 +317,33 @@ class apollo_mapperTests: XCTestCase {
             XCTFail("testCarsMapping 9")
         }
         
+        do {
+            let res = try Mapper.map(Car.self, snapshots: [nil], storeOnly: false)
+            XCTAssert(res?.count == 0, "testCarsMapping 10 error")
+        } catch {
+            XCTFail("testCarsMapping 11")
+        }
         
-//        let count = Car.map(self.jsonData, storage: MyStorage(), exeption: { (_, _) in
-//
-//        }) { (_) in
-//
-//        }.count
-//
-//        XCTAssert(count == 1, "testCarsMapping 4 error")
-//
-//        var errorCount = 0
-//        Mapper.mapToStorage(Car.self, snapshots: self.jsonData, storage: MyStorage()) { (_, _) in
-//            errorCount += 1
-//        }
-//
-//        XCTAssert(errorCount == 3, "testCarsMapping 4 error")
-//
-//        let count1 = BrokenCar.map([self.jsonData[0]], storage: MyStorage(), exeption: { (_, _) in }) { (_) in }.count
-//        XCTAssert(count1 == 0, "testCarsMapping 5 error")
-//
-//        var errorCount2 = 0
-//        Mapper.mapToStorage(BrokenCar.self, snapshots: self.jsonData, storage: MyStorage()) { (_, _) in
-//            errorCount2 += 1
-//        }
-//
-//        XCTAssert(errorCount2 == 4, "testCarsMapping 6 error")
-//
-//        var errorCount3 = 0
-//        Mapper.mapToStorageOnly(Car.self, snapshots: self.jsonData, storage: MyStorage()) { _, _ in
-//            errorCount3 += 1
-//        }
-//        XCTAssert(errorCount == 3, "testCarsMapping 5 error")
+        do {
+            try Mapper.map(Car.self, snapshots: [nil], storage: MyStorage(1), storeOnly: true)
+            XCTAssert(true)
+        } catch {
+            XCTFail("testCarsMapping 12")
+        }
+        
+        do {
+            let car = try Mapper.map(Car.self, snapshot: nil, storeOnly: false)
+            XCTAssert(car == nil, "testCarsMapping 13 error ")
+        } catch {
+            XCTFail("testCarsMapping 14")
+        }
+        
+        do {
+            try Mapper.map(Car.self, snapshot: nil, storage: MyStorage(1), storeOnly: true)
+            XCTAssert(true)
+        } catch {
+            XCTFail("testCarsMapping 15")
+        }
     }
     
     static var allTests = [
