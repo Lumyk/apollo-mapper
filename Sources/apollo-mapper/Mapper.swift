@@ -14,8 +14,7 @@ public class Mapper {
         self.snapshot = snapshot
     }
     
-    @discardableResult
-    public class func map<T: Mappable>(_ type: T.Type, snapshots: [[String : Any?]], storage: MapperStorage? = nil, exeption: ((_ error: MappingError, _ object: [String : Any?]) -> Void)? = nil, element: ((_ object: T) -> Void)? = nil) -> [T] {
+    public class func map<T: Mappable>(_ type: T.Type, snapshots: [[String : Any?]], storage: MapperStorage? = nil, element: ((_ object: T) -> Void)? = nil) throws -> [T] {
         var objects = [T]()
         for snapshot in snapshots {
             do {
@@ -23,50 +22,24 @@ public class Mapper {
                 do {
                     try storage?.save(object: object)
                 } catch let error {
-                    exeption?(MappingError.another(error: error), snapshot)
-                    continue
+                    throw MappingError.storageSaveError(error: error, snapshot: snapshot)
                 }
                 element?(object)
                 objects.append(object)
-            } catch let error as MappingError {
-                exeption?(error, snapshot)
             } catch let error {
-                exeption?(MappingError.another(error: error), snapshot)
+                throw MappingError.mapperError(error: error, snapshot: snapshot)
             }
         }
         return objects
     }
     
-    public class func mapToStorage<T: Mappable>(_ type: T.Type, snapshots: [[String : Any?]], storage: MapperStorage, element: ((_ object: T) -> Void)? = nil, exeption: ((_ error: MappingError, _ object: [String : Any?]) -> Void)? = nil) -> [T] {
-        var objects = [T]()
-        for snapshot in snapshots {
-            do {
-                let object = try T(snapshot: snapshot)
-                do {
-                    try storage.save(object: object)
-                    element?(object)
-                    objects.append(object)
-                } catch let error {
-                    exeption?(MappingError.another(error: error), snapshot)
-                    continue
-                }
-            } catch let error as MappingError {
-                exeption?(error, snapshot)
-            } catch {
-                exeption?(MappingError.mappingError, snapshot)
-            }
-        }
-        return objects
-    }
-    
-    public class func mapToStorageOnly<T: Mappable>(_ type: T.Type, snapshots: [[String : Any?]], storage: MapperStorage, exeption: ((_ error: MappingError, _ object: [String : Any?]) -> Void)? = nil) {
+    public class func mapToStorage<T: Mappable>(_ type: T.Type, snapshots: [[String : Any?]], storage: MapperStorage, exeption: ((_ error: MappingError, _ object: [String : Any?]) -> Void)? = nil) throws {
         for snapshot in snapshots {
             let mapper = Mapper(snapshot: snapshot)
             do {
                 try storage.save(object: mapper, objectType: type)
             } catch let error {
-                exeption?(MappingError.another(error: error), snapshot)
-                continue
+                throw MappingError.storageSaveError(error: error, snapshot: snapshot)
             }
         }
     }
@@ -126,10 +99,8 @@ public extension Mapper {
             return value_
         } catch let error as MappingError {
             throw error
-            /* codecov skip start */
-        }
+        } // LCOV_EXCL_SKIP
     }
-    /* codecov skip end */
     
     func value<T>(key: String, transformType: ((_ value: Any) throws -> T?)? = nil, type: T?.Type = T?.self) throws -> T? {
         if let transformType = transformType {
@@ -161,10 +132,8 @@ public extension Mapper {
             throw MappingError.optional
         } catch let error as MappingError {
             throw error
-            /* codecov skip start */
-        }
+        } // LCOV_EXCL_SKIP
     }
-    /* codecov skip end */
     
     func value<T>(key: String, transformType: ((_ value: Any) throws -> T)? = nil, type: T.Type = T.self) throws -> T {
         if let transformType = transformType {
