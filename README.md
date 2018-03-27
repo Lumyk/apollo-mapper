@@ -9,7 +9,7 @@ Library for mapping swift apollo snapshots to your own class, also you can use i
 ## Exemple
 
 #### GraphQL
-```
+```graphql
 query cars {
     cars: getCars {
         id
@@ -26,7 +26,7 @@ query cars {
 ```
 #### Class
 
-```
+```swift
 class Car: Mappable {
 
     var id: Int
@@ -59,7 +59,7 @@ class Car: Mappable {
 ```
 
 ### Using
-```
+```swift
     let data : [String : Any?] = [
         "id": "1",
         "car_name": "Car 1",
@@ -76,15 +76,11 @@ class Car: Mappable {
 ## Installation
 
 ### CocoaPods
-```
+```ruby
 pod 'apollo-mapper', :git => 'https://github.com/lumyk/apollo-mapper.git'
 ```
 
 ### Swift Package Manager
-
-The [Swift Package Manager](https://swift.org/package-manager/) is a tool for automating the distribution of Swift code and is integrated into the `swift` compiler. It is in early development, but Alamofire does support its use on supported platforms.
-
-Once you have your Swift package set up, adding Alamofire as a dependency is as easy as adding it to the `dependencies` value of your `Package.swift`.
 
 #### Swift 3
 
