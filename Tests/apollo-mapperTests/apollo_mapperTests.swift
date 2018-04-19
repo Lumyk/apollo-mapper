@@ -2,10 +2,22 @@ import XCTest
 @testable import apollo_mapper
 
 class MyStorage: MapperStorage {
+    
+    
+    func transactionSplitter() -> MapperStorageTransactionSplitter {
+        return self.transactionSplitter_
+    }
+    
+    func transaction(_ block: () throws -> Void) throws {
+        try block()
+    }
+    
     var count = 0
-
-    init(_ count: Int = 0) {
+    let transactionSplitter_: MapperStorageTransactionSplitter
+    
+    init(_ count: Int = 0, transactionSplitter: MapperStorageTransactionSplitter = .all) {
         self.count = count
+        self.transactionSplitter_ = transactionSplitter
     }
     
     func save<T>(object: Mapper, objectType: T.Type) throws where T : Mappable {
@@ -311,7 +323,7 @@ class apollo_mapperTests: XCTestCase {
         }
         
         do {
-            try Mapper.mapToStorage(Car.self, snapshots: [self.jsonData[0]], storage: MyStorage(1))
+            try Mapper.mapToStorage(Car.self, snapshots: [self.jsonData[0]], storage: MyStorage(1, transactionSplitter: .split(by: 10)))
             XCTAssert(true)
         } catch {
             XCTFail("testCarsMapping 9")
@@ -325,7 +337,7 @@ class apollo_mapperTests: XCTestCase {
         }
         
         do {
-            try Mapper.map(Car.self, snapshots: [nil], storage: MyStorage(1), storeOnly: true)
+            try Mapper.map(Car.self, snapshots: [nil], storage: MyStorage(1, transactionSplitter: .one), storeOnly: true)
             XCTAssert(true)
         } catch {
             XCTFail("testCarsMapping 12")
@@ -339,7 +351,7 @@ class apollo_mapperTests: XCTestCase {
         }
         
         do {
-            try Mapper.map(Car.self, snapshot: nil, storage: MyStorage(1), storeOnly: true)
+            try Mapper.map(Car.self, snapshot: nil, storage: MyStorage(1, transactionSplitter: .split(by: 10)), storeOnly: true)
             XCTAssert(true)
         } catch {
             XCTFail("testCarsMapping 15")

@@ -21,6 +21,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		155AA0F9208910B900CF0872 /* MapperStorageTransactionSplitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155AA0F72089106200CF0872 /* MapperStorageTransactionSplitter.swift */; };
 		15FEC98D20543FBE00E977FD /* Mapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15FEC98C20543FBE00E977FD /* Mapper.swift */; };
 		15FEC98F20543FE300E977FD /* MappingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15FEC98E20543FE300E977FD /* MappingError.swift */; };
 		15FEC9912054401F00E977FD /* TransformTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15FEC9902054401F00E977FD /* TransformTypes.swift */; };
@@ -50,6 +51,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		155AA0F72089106200CF0872 /* MapperStorageTransactionSplitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapperStorageTransactionSplitter.swift; sourceTree = "<group>"; };
 		15FEC98C20543FBE00E977FD /* Mapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Mapper.swift; sourceTree = "<group>"; };
 		15FEC98E20543FE300E977FD /* MappingError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MappingError.swift; sourceTree = "<group>"; };
 		15FEC9902054401F00E977FD /* TransformTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransformTypes.swift; sourceTree = "<group>"; };
@@ -108,7 +110,7 @@
 			name = Products;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		OBJ_5 /*  */ = {
+		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
@@ -116,7 +118,6 @@
 				OBJ_10 /* Tests */,
 				OBJ_13 /* Products */,
 			);
-			name = "";
 			sourceTree = "<group>";
 		};
 		OBJ_7 /* Sources */ = {
@@ -135,6 +136,7 @@
 				15FEC98E20543FE300E977FD /* MappingError.swift */,
 				15FEC9902054401F00E977FD /* TransformTypes.swift */,
 				15FEC9942054411300E977FD /* MapperStorage.swift */,
+				155AA0F72089106200CF0872 /* MapperStorageTransactionSplitter.swift */,
 			);
 			name = "apollo-mapper";
 			path = "Sources/apollo-mapper";
@@ -205,7 +207,7 @@
 			knownRegions = (
 				en,
 			);
-			mainGroup = OBJ_5 /*  */;
+			mainGroup = OBJ_5;
 			productRefGroup = OBJ_13 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -240,6 +242,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
+				155AA0F9208910B900CF0872 /* MapperStorageTransactionSplitter.swift in Sources */,
 				15FEC98D20543FBE00E977FD /* Mapper.swift in Sources */,
 				15FEC9952054411300E977FD /* MapperStorage.swift in Sources */,
 				15FEC9912054401F00E977FD /* TransformTypes.swift in Sources */,

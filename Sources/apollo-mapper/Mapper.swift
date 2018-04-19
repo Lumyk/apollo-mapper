@@ -20,7 +20,7 @@ public class Mapper {
         do {
             try storage?.save(object: object)
         } catch let error {
-            throw MappingError.storageSaveError(error: error, snapshot: snapshot)
+            throw MappingError.storageSaveOneError(error: error, snapshot: snapshot)
         }
         return object
     }
@@ -37,6 +37,7 @@ public class Mapper {
     
     public class func map<T: Mappable>(_ type: T.Type, snapshots: [[String : Any?]?], storage: MapperStorage? = nil, element: ((_ object: T) -> Void)? = nil) throws -> [T] {
         var objects = [T]()
+        var index = 0
         for snapshot in snapshots {
             do {
                 if let object = try self.map(type, snapshot: snapshot, storage: storage) {
@@ -44,8 +45,9 @@ public class Mapper {
                     objects.append(object)
                 }
             } catch let error {
-                throw MappingError.mapperError(error: error, snapshot: snapshot)
+                throw MappingError.mappingError(error: error, snapshots: snapshots, index: index)
             }
+            index += 1
         }
         return objects
     }
@@ -67,11 +69,37 @@ public class Mapper {
     }
     
     public class func mapToStorage<T: Mappable>(_ type: T.Type, snapshots: [[String : Any?]?], storage: MapperStorage) throws {
-        for snapshot in snapshots {
+        var index = 0
+        func map(snapshot: [String : Any?]?) throws {
             do {
                 try self.mapToStorage(type, snapshot: snapshot, storage: storage)
             } catch let error {
-                throw MappingError.storageSaveError(error: error, snapshot: snapshot)
+                throw MappingError.storageSaveError(error: error, snapshots: snapshots, index: index)
+            }
+            index += 1
+        }
+        
+        switch storage.transactionSplitter() {
+        case .one:
+            try storage.transaction {
+                for snapshot in snapshots {
+                    try map(snapshot: snapshot)
+                }
+            }
+        case .split(by: let size):
+            let splitedSnapshots = stride(from: 0, to: snapshots.count, by: size).map {
+                Array(snapshots[$0..<min($0 + size, snapshots.count)])
+            }
+            for snapshots in splitedSnapshots {
+                try storage.transaction {
+                    for snapshot in snapshots {
+                        try map(snapshot: snapshot)
+                    }
+                }
+            }
+        case .all:
+            for snapshot in snapshots {
+                try map(snapshot: snapshot)
             }
         }
     }
