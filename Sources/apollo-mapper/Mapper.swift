@@ -35,29 +35,72 @@ public class Mapper {
         return nil
     }
     
-    public class func map<T: Mappable>(_ type: T.Type, snapshots: [[String : Any?]?], storage: MapperStorage? = nil, element: ((_ object: T) -> Void)? = nil) throws -> [T] {
+    public class func map<T: Mappable>(_ type: T.Type, snapshots: [[String : Any?]?], storage: MapperStorage? = nil, transactionSplitter: MapperStorageTransactionSplitter? = nil, element: ((_ object: T) -> Void)? = nil) throws -> [T] {
         var objects = [T]()
-        var index = 0
-        for snapshot in snapshots {
-            do {
-                if let object = try self.map(type, snapshot: snapshot, storage: storage) {
-                    element?(object)
-                    objects.append(object)
+        
+        if let storage = storage {
+            var index = 0
+            func map(snapshot: [String : Any?]?) throws {
+                do {
+                    if let object = try self.map(type, snapshot: snapshot, storage: storage) {
+                        element?(object)
+                        objects.append(object)
+                    }
+                } catch let error {
+                    throw MappingError.mappingError(error: error, snapshots: snapshots, index: index)
                 }
-            } catch let error {
-                throw MappingError.mappingError(error: error, snapshots: snapshots, index: index)
+                index += 1
             }
-            index += 1
+            
+            try storage.clearTable(for: T.self)
+            
+            switch transactionSplitter ?? storage.transactionSplitter(for: T.self) {
+            case .one:
+                try storage.transaction {
+                    for snapshot in snapshots {
+                        try map(snapshot: snapshot)
+                    }
+                }
+            case .split(by: let size):
+                let splitedSnapshots = stride(from: 0, to: snapshots.count, by: size).map {
+                    Array(snapshots[$0..<min($0 + size, snapshots.count)])
+                }
+                for snapshots in splitedSnapshots {
+                    try storage.transaction {
+                        for snapshot in snapshots {
+                            try map(snapshot: snapshot)
+                        }
+                    }
+                }
+            case .all:
+                for snapshot in snapshots {
+                    try map(snapshot: snapshot)
+                }
+            }
+        } else {
+            var index = 0
+            for snapshot in snapshots {
+                do {
+                    if let object = try self.map(type, snapshot: snapshot) {
+                        element?(object)
+                        objects.append(object)
+                    }
+                } catch let error {
+                    throw MappingError.mappingError(error: error, snapshots: snapshots, index: index)
+                }
+                index += 1
+            }
         }
+        
         return objects
     }
     
     @discardableResult
-    public class func map<T: Mappable>(_ type: T.Type, snapshots: [[String : Any?]?], storage: MapperStorage? = nil, storeOnly: Bool) throws -> [T]? {
+    public class func map<T: Mappable>(_ type: T.Type, snapshots: [[String : Any?]?], storage: MapperStorage? = nil, storeOnly: Bool, transactionSplitter: MapperStorageTransactionSplitter? = nil) throws -> [T]? {
         if let storage = storage, storeOnly {
-            try Mapper.mapToStorage(type, snapshots: snapshots, storage: storage)
+            try Mapper.mapToStorage(type, snapshots: snapshots, storage: storage, transactionSplitter: transactionSplitter)
         } else {
-            return try Mapper.map(type, snapshots: snapshots, storage: storage)
+            return try Mapper.map(type, snapshots: snapshots, storage: storage, transactionSplitter: transactionSplitter)
         }
         return nil
     }
@@ -68,7 +111,7 @@ public class Mapper {
         try storage.save(object: mapper, objectType: type)
     }
     
-    public class func mapToStorage<T: Mappable>(_ type: T.Type, snapshots: [[String : Any?]?], storage: MapperStorage) throws {
+    public class func mapToStorage<T: Mappable>(_ type: T.Type, snapshots: [[String : Any?]?], storage: MapperStorage, transactionSplitter: MapperStorageTransactionSplitter? = nil) throws {
         var index = 0
         func map(snapshot: [String : Any?]?) throws {
             do {
@@ -79,7 +122,9 @@ public class Mapper {
             index += 1
         }
         
-        switch storage.transactionSplitter() {
+        try storage.clearTable(for: T.self)
+        
+        switch transactionSplitter ?? storage.transactionSplitter(for: T.self) {
         case .one:
             try storage.transaction {
                 for snapshot in snapshots {

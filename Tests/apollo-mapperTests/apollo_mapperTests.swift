@@ -3,9 +3,12 @@ import XCTest
 
 class MyStorage: MapperStorage {
     
-    
-    func transactionSplitter() -> MapperStorageTransactionSplitter {
+    func transactionSplitter<T>(for objectType: T.Type) -> MapperStorageTransactionSplitter where T : Mappable {
         return self.transactionSplitter_
+    }
+    
+    func clearTable<T>(for objectType: T.Type) throws where T : Mappable {
+        
     }
     
     func transaction(_ block: () throws -> Void) throws {
@@ -355,6 +358,20 @@ class apollo_mapperTests: XCTestCase {
             XCTAssert(true)
         } catch {
             XCTFail("testCarsMapping 15")
+        }
+        
+        do {
+            _ = try Mapper.map(Car.self, snapshots: [self.jsonData[0]], storage: MyStorage(1, transactionSplitter: .split(by: 10)))
+            XCTAssert(true)
+        } catch {
+            XCTFail("testCarsMapping 16")
+        }
+        
+        do {
+            _ = try Mapper.map(Car.self, snapshots: [self.jsonData[0]], storage: MyStorage(1, transactionSplitter: .one))
+            XCTAssert(true)
+        } catch {
+            XCTFail("testCarsMapping 17")
         }
     }
     
