@@ -1,5 +1,6 @@
 language: objective-c
-osx_image: xcode9
-script: xcodebuild test -scheme apollo-mapper-Package -enableCodeCoverage YES
+osx_image: xcode10
+script:
+  - set -o pipefail && xcodebuild test -enableCodeCoverage YES -scheme apollo-mapper-Package ONLY_ACTIVE_ARCH=NO | xcpretty
 after_success:
   - bash <(curl -s https://codecov.io/bash) -t 5ba346fd-60e2-4650-86d5-0c22f6340b03
