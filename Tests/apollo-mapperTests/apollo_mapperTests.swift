@@ -3,6 +3,15 @@ import XCTest
 
 class MyStorage: MapperStorage {
     
+    func storeOnly<T>(for objectType: T.Type) -> Bool where T : Mappable {
+        return self.storeOnly
+    }
+    
+    func clearEmptyId<T>(for objectType: T.Type, ids: [Int]) throws where T : Mappable {
+        
+    }
+    
+    
     func transactionSplitter<T>(for objectType: T.Type) -> MapperStorageTransactionSplitter where T : Mappable {
         return self.transactionSplitter_
     }
@@ -17,10 +26,12 @@ class MyStorage: MapperStorage {
     
     var count = 0
     let transactionSplitter_: MapperStorageTransactionSplitter
+    let storeOnly: Bool
     
-    init(_ count: Int = 0, transactionSplitter: MapperStorageTransactionSplitter = .all) {
+    init(_ count: Int = 0, transactionSplitter: MapperStorageTransactionSplitter = .all, storeOnly: Bool = false) {
         self.count = count
         self.transactionSplitter_ = transactionSplitter
+        self.storeOnly = storeOnly
     }
     
     func save<T>(object: Mapper, objectType: T.Type) throws where T : Mappable {
@@ -333,28 +344,28 @@ class apollo_mapperTests: XCTestCase {
         }
         
         do {
-            let res = try Mapper.map(Car.self, snapshots: [nil], storeOnly: false)
+            let res = try Mapper.map(Car.self, snapshots: [nil]) // , storeOnly: false
             XCTAssert(res?.count == 0, "testCarsMapping 10 error")
         } catch {
             XCTFail("testCarsMapping 11")
         }
         
         do {
-            try Mapper.map(Car.self, snapshots: [nil], storage: MyStorage(1, transactionSplitter: .one), storeOnly: true)
+            try Mapper.map(Car.self, snapshots: [nil], storage: MyStorage(1, transactionSplitter: .one, storeOnly: true))
             XCTAssert(true)
         } catch {
             XCTFail("testCarsMapping 12")
         }
         
         do {
-            let car = try Mapper.map(Car.self, snapshot: nil, storeOnly: false)
+            let car = try Mapper.map(Car.self, snapshot: nil) // storeOnly: false
             XCTAssert(car == nil, "testCarsMapping 13 error ")
         } catch {
             XCTFail("testCarsMapping 14")
         }
         
         do {
-            try Mapper.map(Car.self, snapshot: nil, storage: MyStorage(1, transactionSplitter: .split(by: 10)), storeOnly: true)
+            try Mapper.map(Car.self, snapshot: nil, storage: MyStorage(1, transactionSplitter: .split(by: 10), storeOnly: true))
             XCTAssert(true)
         } catch {
             XCTFail("testCarsMapping 15")
